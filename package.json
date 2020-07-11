@@ -1,0 +1,14 @@
+{
+  "name": "Bop!",
+  "version": "0.1.0",
+  "description": "A independent software for independents games",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron ."
+  },
+  "author": "NiceTemmie",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^9.1.0"
+  }
+}
