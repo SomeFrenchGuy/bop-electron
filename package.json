@@ -1,6 +1,6 @@
 {
   "name": "Bop!",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A independent software for independents games",
   "main": "main.js",
   "scripts": {
@@ -10,5 +10,8 @@
   "license": "ISC",
   "devDependencies": {
     "electron": "^9.1.0"
+  },
+  "dependencies": {
+    "jquery": "^3.5.1"
   }
 }

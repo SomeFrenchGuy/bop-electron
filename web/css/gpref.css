@@ -1,0 +1,97 @@
+@font-face {
+    font-family: 'GlacialIndifference';
+    src: url('../../res/font/GlacialIndifference.otf');
+}
+
+@font-face {
+    font-family: 'GlacialIndifferenceBold';
+    src: url('../../res/font/GlacialIndifferenceBold.otf');
+}
+
+@font-face {
+    font-family: 'OpenSans';
+    src: url('../../res/font/OpenSans.ttf');
+}
+
+#gpref{
+  cursor: default;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
+#gpref h2 {
+  align-self: start;
+  font-family: "GlacialIndifference";
+  font-size: 3vh;
+  margin: 2%;
+  font-weight: lighter;
+  margin-bottom: 9%;
+}
+
+#gpref h3 {
+  font-family: "ArchivoBlack";
+  font-weight: lighter;
+  font-size: 5vh;
+  margin: 0;
+  margin-top: 4%;
+  margin-bottom: 2%;
+}
+
+#gpref input[type = text]{
+  cursor: text;
+  background-color: #D9D9D9;
+  height: 6%;
+  width: 93%;
+  border:none;
+  border-radius: 20px;
+  font-size: 120%;
+  font-family: "OpenSans";
+  padding-left: 2%;
+  margin-bottom: 1%;
+}
+
+#treebutton {
+  display: flex;
+  flex-direction: row;
+  width: 85%;
+  justify-content: space-between;
+}
+
+#treebutton p {
+  cursor: pointer;
+  display: inline-block;
+  font-family: "OpenSansBold";
+  color: #a6a6a6;
+  opacity: 1;
+  font-size: 5.5vh;
+  border: 0.13em solid #a6a6a6;
+  border-radius: 10px
+}
+
+#treebutton p:hover{
+  color: #737373;
+  border: 0.13em solid #737373;
+}
+
+#fileBrowserButton{
+  cursor: pointer;
+  background-color: #ffab76;
+  padding-left: 2%;
+  padding-right: 2%;
+  padding-bottom: 0.7%;
+  margin-bottom: 10%;
+}
+
+#fileBrowserButton:hover{
+  background-color: #FF7C2A;
+}
+
+#fileBrowserButton p{
+  color: #ffffff;
+  opacity: 1;
+  font-size: 5vh;
+  font-family: "OpenSansBold";
+}
