@@ -1,6 +1,6 @@
 # bop-electron
 
-To run Bop! :
+# To run Bop! :
   In the bop folder:
   -npm install (only the first time ;)  )
   -electron .
