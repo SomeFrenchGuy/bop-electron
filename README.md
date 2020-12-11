@@ -5,4 +5,4 @@
   -npm install (only the first time ;)  )
   -electron .
   
-  you can choose the games folder in preference
+in developement
