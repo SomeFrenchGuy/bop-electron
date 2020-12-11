@@ -3,6 +3,7 @@ const { spawn } = require("child_process");
 
 
 let mainWindow;
+let FLWindow;
 
 function createWindow () {
 
@@ -18,7 +19,10 @@ function createWindow () {
   });
   mainWindow.setResizable(false);
 
-  mainWindow.loadFile('web/main.html')
+
+
+  mainWindow.loadFile('web/html/main.html')
+
   mainWindow.on('closed', () => {mainWindow = null;})
 }
 
@@ -41,6 +45,7 @@ ipcMain.on('fileSelect', (event, args) => {
 });
 
 ipcMain.on('runFile', (event, args) =>{
+  mainWindow.minimize();
   let bashCommand;
   if (args.slice(args.length - 4)==".exe"){
     console.log("======WINE======");
@@ -57,6 +62,33 @@ ipcMain.on('runFile', (event, args) =>{
 
   bashCommand.on("close", code => {console.log(`child process exited with code ${code}`);});
 });
+
+ipcMain.on('firstLaunch', (event, args) => {
+  console.log("======FIRST-LAUNCH-WINDOW======")
+  mainWindow.hide();
+
+  FLWindow = new BrowserWindow({
+    width: 700,
+    height:600,
+    center:true,
+    frame: false,
+    icon:"res/img/logo.png",
+    parent: mainWindow,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
+  FLWindow.setResizable(false);
+
+  FLWindow.loadFile('web/html/FLW.html')
+
+  mainWindow.on('closed', () => {FLWindow = null;})
+})
+
+ipcMain.on("endFirstConfig",  (event, args) => {
+  mainWindow.reload();
+  mainWindow.show();
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

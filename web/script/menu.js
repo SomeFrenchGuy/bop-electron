@@ -2,36 +2,44 @@ const fs = require('fs');
 const ipc = require('electron').ipcRenderer;
 const jquery = require('jquery')
 
-let userPreference;
-let gameView;
-let searchBarView;
-let bop_pref_view;
+let recentGames = new Array();
 let database = new Object();
 const mainDiv = document.getElementById("page")
 
 //Get the config file
 jquery.ajax({
     type: "GET",
-    url: "../res/data/config.json",
+    url: "../../res/data/config.json",
     async: false,
     success : function(text) {
       userPreference=text;
     }
 });
 
+//get the history of games
+jquery.ajax({
+    type: "GET",
+    url: "../../res/data/recent.json",
+    async: false,
+    success : function(text) {
+      recentGames=text;
+    }
+});
+
 //Get the game view model
 jquery.ajax({
     type: "GET",
-    url: "../web/game_view.html",
+    url: "../../web/html/game_view.html",
     async: false,
     success : function(text) {
       gameView=text;
     }
 });
 
+//Get the shearch bar model
 jquery.ajax({
     type: "GET",
-    url: "../web/search_bar.html",
+    url: "../../web/html/search_bar.html",
     async: false,
     success : function(text) {
       searchBarView=text;
@@ -41,27 +49,31 @@ jquery.ajax({
 //Get the game's pref view model
 jquery.ajax({
     type: "GET",
-    url: "../web/gpref_view.html",
+    url: "../../web/html/gpref_view.html",
     async: false,
     success : function(text) {
       gprefView=text;
     }
 });
 
+//Get the preference page model
 jquery.ajax({
     type: "GET",
-    url: "../web/bop_pref_view.html",
+    url: "../../web/html/bop_pref_view.html",
     async: false,
     success : function(text) {
       bop_pref_view=text;
     }
 });
 
+if (userPreference.gamesFolder == null) {
+  ipc.send("firstLaunch");
+}
 load_database();
 page_library_show();
 
 //==============================================================================
-//==============================================================================
+//================================DATABASE======================================
 
 function save_database(){
   fs.writeFile('./res/data/id.json', JSON.stringify(database.id), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}})
@@ -74,7 +86,7 @@ function load_database() {
   //Get the id list
   jquery.ajax({
       type: "GET",
-      url: "../res/data/id.json",
+      url: "../../res/data/id.json",
       async: false,
       success : function(text) {
         database.id=text;
@@ -84,7 +96,7 @@ function load_database() {
   //Get the name list
   jquery.ajax({
       type: "GET",
-      url: "../res/data/gname.json",
+      url: "../../res/data/gname.json",
       async: false,
       success : function(text) {
         database.name=text;
@@ -94,7 +106,7 @@ function load_database() {
   //Get the main file list
   jquery.ajax({
       type: "GET",
-      url: "../res/data/gmain.json",
+      url: "../../res/data/gmain.json",
       async: false,
       success : function(text) {
         database.main=text;
@@ -104,7 +116,7 @@ function load_database() {
   //Get the path list (id file but invert)
   jquery.ajax({
       type: "GET",
-      url: "../res/data/gpath.json",
+      url: "../../res/data/gpath.json",
       async: false,
       success : function(text) {
         database.path=text;
@@ -113,7 +125,7 @@ function load_database() {
 };
 
 //==============================================================================
-//==============================================================================
+//==================================LIBRARY=====================================
 
 //Show the library
 function page_library_show(){
@@ -152,9 +164,43 @@ function page_library_show(){
 }; //function
 
 //Creating the page
-//Actually useless as a function right now but could be very useful to make some "order by name" or shit like that in the future
-function generate_library(files,filter=""){
+function generate_library(files){
   mainDiv.innerHTML="";
+
+  switch (userPreference.sortBy){
+
+    //SHORT BY NAME
+    case 0:
+      console.log("[Library generation]: Sort by name")
+      files = files.sort(function (a, b) {return a.toLowerCase().localeCompare(b.toLowerCase());}); //sort but with lowercase, this is not my snipet
+      sortedFiles = Object.values(database.name).sort(function (a, b) {return a.toLowerCase().localeCompare(b.toLowerCase());}) //same here
+      sortedFiles.reverse().forEach(function(name){
+        path = database.path[getKeyByValue(database.name, name)];
+        if (files.indexOf(path) != -1){ //check if games still in folder
+          files.splice(files.indexOf(path),1);
+          files.unshift(path);
+        }
+      })
+      break;
+
+    //SHORT BY LAST USE
+    case 1:
+      console.log("[Library generation]: Sort by last use")
+      recentGames.forEach(function (id){
+        if (database.path[id]){  // prevent from ghost games "bugs" by testing if game exist
+          files.splice(files.indexOf(database.path[id]),1);
+          files.unshift(database.path[id]);
+        }
+      });
+      break;
+
+    //SHORT BY TIME PLAYED
+    case 2:
+      //INCOMING IN THE FUTURE
+      console.log("[Library generation]: Sort by time played")
+  }
+
+  let unconfGames = "";
   files.forEach(function (file) {
     let actualGame = gameView;
     id = database.id[file];
@@ -165,8 +211,7 @@ function generate_library(files,filter=""){
       actualGame = actualGame.replace("fill3","Ready");
       actualGame = actualGame.replace("fill4","on");
       actualGame = actualGame.replace("fill5", " onclick=\"play(this)\"")
-      //ready game go up
-      mainDiv.innerHTML = actualGame+mainDiv.innerHTML;
+      mainDiv.innerHTML += actualGame;
     }else{
       actualGame = actualGame.replace("fill0",file);
       actualGame = actualGame.replace("fill1",file);
@@ -174,27 +219,40 @@ function generate_library(files,filter=""){
       actualGame = actualGame.replace("fill3","Configuration required");
       actualGame = actualGame.replace("fill4","off");
       actualGame = actualGame.replace("fill5", "")
-      mainDiv.innerHTML += actualGame;
+      unconfGames += actualGame;
     };
   });
+  mainDiv.innerHTML += unconfGames;
 }
 
 function play(button){
   //get the id of the game
   let id = button.parentElement.parentElement.id;
+  //run the game
   ipc.send('runFile',userPreference.gamesFolder+"/"+database.path[id]+database.main[id])
+
+  //uptading history
+  if (recentGames.indexOf(id) != -1){ //test if the game is already in the array then delete it
+    recentGames.splice(recentGames.indexOf(id),1);
+  }
+  recentGames[recentGames.length] = parseInt(id) // just for the first item it can't be +=
+  fs.writeFile('./res/data/recent.json', JSON.stringify(recentGames), err => {if (err) {console.log('Error writing file', err)}else{console.log('recentGame array updated')}});
+
+  if(userPreference.sortBy == 1){ //when user return to interface their game is now up
+    page_library_show();
+  }
 }
 
 function gear_hover(element) {
-  element.setAttribute('src', '../res/img/gear2.png');
+  element.setAttribute('src', '../../res/img/gear2.png');
 }
 
 function gear_unhover(element) {
-  element.setAttribute('src', '../res/img/gear1.png');
+  element.setAttribute('src', '../../res/img/gear1.png');
 }
 
 //==============================================================================
-//==============================================================================
+//===============================GPREF==========================================
 
 function gpref_show(g){
   let gp = gprefView;
@@ -257,6 +315,11 @@ function delete_gpref(g){
     delete database.path[id];
     delete database.name[id];
     delete database.main[id];
+    if (recentGames.indexOf(id) != -1){
+      console.log("?");
+      recentGames.splice(recentGames.indexOf(id),1);
+      fs.writeFile('./res/data/recent.json', JSON.stringify(recentGames), err => {if (err) {console.log('Error writing file', err)}else{console.log('deleted from recentGame array')}});
+    };
     save_database();
   };
   load_database();
@@ -264,17 +327,17 @@ function delete_gpref(g){
 }
 
 //==============================================================================
-//==============================================================================
+//===============================BOP-PREF=======================================
 
 //Show Bop's preference
 function page_preference_show(){
   //a refaire mais flemme la
   document.getElementById("page_library_button").style.textDecoration="none";
   document.getElementById("page_preference_button").style.textDecoration="underline";
-
-  bop_pref_view = bop_pref_view.replace(/fill0/gi, userPreference.version)
-  bop_pref_view = bop_pref_view.replace(/fill1/gi, userPreference.gamesFolder)
-  mainDiv.innerHTML = bop_pref_view;
+  let prefView = bop_pref_view;
+  prefView = prefView.replace(/fill0/gi, userPreference.version);
+  prefView = prefView.replace(/fill1/gi, userPreference.gamesFolder);
+  mainDiv.innerHTML = prefView;
 };
 
 function gamesFolderSelect(){
@@ -288,7 +351,37 @@ function gamesFolderSelect(){
 }
 
 //==============================================================================
-//==============================================================================
+//=============================OTHERS-RDM-FUNCTION==============================
+
+function heros(){
+  jquery.ajax({
+      type: "GET",
+      url: "https://linktr.ee/Stainy",
+      async: false,
+      success : function(text) {
+        herosView=text;
+      }
+  });
+  mainDiv.innerHTML = herosView;
+}
+
+function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
+}
+
+//just a rdm tool to use in terminal
+function resetEverything(){
+  userPreference.gamesFolder = null;
+  userPreference.theme = "orange";
+  userPreference.sortBy = 0;
+  fs.writeFile('./res/data/config.json', JSON.stringify(userPreference), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}});
+  fs.writeFile('./res/data/recent.json', JSON.stringify(new Array), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}});
+  database.id={};
+  database.path={};
+  database.name={};
+  database.main={};
+  save_database();
+}
 
 function quitThisDammApp(){
   const remote = require('electron').remote
