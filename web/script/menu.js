@@ -142,7 +142,7 @@ function page_library_show(){
     //if everythings is fine
     }else {
       generate_library(files=files)
-      mainDiv.innerHTML=searchBarView+mainDiv.innerHTML;
+      mainDiv.innerHTML=searchBarView.replace("s"+userPreference.sortBy, "selected")+mainDiv.innerHTML;
 
       document.getElementById("searchInput").oninput = function(){
         gl = document.getElementsByClassName("game_div");
@@ -223,6 +223,12 @@ function generate_library(files){
     };
   });
   mainDiv.innerHTML += unconfGames;
+}
+
+function change_sortBy(mode){
+  userPreference.sortBy = parseInt(mode);
+  fs.writeFile('./res/data/config.json', JSON.stringify(userPreference), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}})
+  page_library_show();
 }
 
 function play(button){

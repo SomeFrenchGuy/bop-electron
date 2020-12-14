@@ -22,6 +22,41 @@
   padding-left: 1%;
 }
 
+#sortSelect {
+  border:none;
+  width:16%;
+  height:69%;
+  padding-left: 1%;
+  font-family: "OpenSansBold";
+  font-weight:700;
+  font-size: 1.6vh;
+  padding-right: 1%;
+
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+
+  background-image:
+    linear-gradient(45deg, transparent 50%, gray 50%),
+    linear-gradient(135deg, gray 50%, transparent 50%),
+    linear-gradient(to right, #ccc, #ccc);
+  background-position:
+    calc(100% - 20px) calc(1em + 2px),
+    calc(100% - 15px) calc(1em + 2px),
+    calc(100% - 2.5em) 0.5em;
+  background-size:
+    5px 5px,
+    5px 5px,
+    1px 1.5em;
+  background-repeat: no-repeat;
+}
+#sortSelect option{
+  font-family: "GlacialIndifference";
+}
+
 .game_div
 {
   cursor: default;

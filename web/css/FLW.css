@@ -124,14 +124,22 @@ h3 {
   background-color:#d9d9d9;
   border: none;
   font-size: 3vh;
-  padding: 3% 4% 3% 4%;
+  padding: 2% 3% 2% 3%;
   border-radius: 20px;
   visibility:hidden;
   position:absolute;
   margin-top:73%;
   margin-left:35%;
+  transition: 0.2s;
 }
 
+#flee:hover {
+  background-color:#7ed957;
+  color:#FFFFFF;
+  padding: 3% 4% 3% 4%;
+
+  transition: 0.35s;
+}
 
 
 .slide-bottom{animation:slide-bottom .8s cubic-bezier(.25,.46,.45,.94) alternate both}
