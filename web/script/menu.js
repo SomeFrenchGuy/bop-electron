@@ -76,10 +76,10 @@ page_library_show();
 //================================DATABASE======================================
 
 function save_database(){
-  fs.writeFile('./res/data/id.json', JSON.stringify(database.id), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}})
-  fs.writeFile('./res/data/gpath.json', JSON.stringify(database.path), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}})
-  fs.writeFile('./res/data/gname.json', JSON.stringify(database.name), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}})
-  fs.writeFile('./res/data/gmain.json', JSON.stringify(database.main), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}})
+  ipc.send("write", ['/res/data/id.json', database.id])
+  ipc.send('write', ['/res/data/gpath.json', database.path])
+  ipc.send('write', ['/res/data/gname.json', database.name])
+  ipc.send('write', ['/res/data/gmain.json', database.main])
 }
 
 function load_database() {
@@ -187,9 +187,11 @@ function generate_library(files){
     case 1:
       console.log("[Library generation]: Sort by last use")
       recentGames.forEach(function (id){
-        if (database.path[id]){  // prevent from ghost games "bugs" by testing if game exist
-          files.splice(files.indexOf(database.path[id]),1);
-          files.unshift(database.path[id]);
+        if (database.path[id] ){  // prevent from ghost games "bugs" by testing if game exist
+          if(files.indexOf(database.path[id]) != -1){
+            files.splice(files.indexOf(database.path[id]),1);
+            files.unshift(database.path[id]);
+          }
         }
       });
       break;
@@ -227,7 +229,7 @@ function generate_library(files){
 
 function change_sortBy(mode){
   userPreference.sortBy = parseInt(mode);
-  fs.writeFile('./res/data/config.json', JSON.stringify(userPreference), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}})
+  ipc.send("write", ['/res/data/config.json', userPreference])
   page_library_show();
 }
 
@@ -242,7 +244,7 @@ function play(button){
     recentGames.splice(recentGames.indexOf(id),1);
   }
   recentGames[recentGames.length] = parseInt(id) // just for the first item it can't be +=
-  fs.writeFile('./res/data/recent.json', JSON.stringify(recentGames), err => {if (err) {console.log('Error writing file', err)}else{console.log('recentGame array updated')}});
+  ipc.send("write", ['/res/data/recent.json', recentGames])
 
   if(userPreference.sortBy == 1){ //when user return to interface their game is now up
     page_library_show();
@@ -350,9 +352,8 @@ function gamesFolderSelect(){
   path = ipc.sendSync("fileSelect",["","openDirectory"]);
   if (path != ""){
     document.getElementById("inputGamesFolder").value = path;
-    //idk why path is becoming an array whens stringify, path[0] fix it
     userPreference.gamesFolder = path[0];
-    fs.writeFile('./res/data/config.json', JSON.stringify(userPreference), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}})
+    ipc.send("write", ['/res/data/config.json', userPreference])
   }
 }
 
@@ -380,8 +381,8 @@ function resetEverything(){
   userPreference.gamesFolder = null;
   userPreference.theme = "orange";
   userPreference.sortBy = 0;
-  fs.writeFile('./res/data/config.json', JSON.stringify(userPreference), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}});
-  fs.writeFile('./res/data/recent.json', JSON.stringify(new Array), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}});
+  ipc.send("write", ['/res/data/config.json', userPreference])
+  ipc.send("write", ['/res/data/recent.json', new Array])
   database.id={};
   database.path={};
   database.name={};

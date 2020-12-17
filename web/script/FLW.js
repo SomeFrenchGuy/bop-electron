@@ -1,4 +1,3 @@
-const ipc = require('electron').ipcRenderer;
 const jquery = require('jquery');
 const fs = require('fs');
 
@@ -23,11 +22,9 @@ function showThemThePowerOfFileBrowser() {
 
 function letzgo (){
   up.gamesFolder = document.getElementById("folderText").innerHTML
-  fs.writeFile('./res/data/config.json', JSON.stringify(up), err => {if (err) {console.log('Error writing file', err)}else{
-    console.log('Successfully wrote file')
-    ipc.send("endFirstConfig");
-    const remote = require('electron').remote
-    let w = remote.getCurrentWindow()
-    w.close()
-  }})
+  ipc.send("write", ['/res/data/config.json', up])
+  ipc.send("endFirstConfig");
+  const remote = require('electron').remote
+  let w = remote.getCurrentWindow()
+  w.close()
 }

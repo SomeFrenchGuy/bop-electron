@@ -1,9 +1,11 @@
 const { app, BrowserWindow,dialog, ipcMain } = require('electron')
 const { spawn } = require("child_process");
+const fs = require('fs');
 
 
 let mainWindow;
 let FLWindow;
+console.log(__dirname)
 
 function createWindow () {
 
@@ -12,7 +14,7 @@ function createWindow () {
     height: 1080,
     center:true,
     frame: false,
-    icon:"res/img/logo.png",
+    icon:__dirname+"/res/img/logo.png",
     webPreferences: {
       nodeIntegration: true
     }
@@ -21,7 +23,7 @@ function createWindow () {
 
 
 
-  mainWindow.loadFile('web/html/main.html')
+  mainWindow.loadFile(__dirname+'/web/html/main.html')
 
   mainWindow.on('closed', () => {mainWindow = null;})
 }
@@ -72,7 +74,7 @@ ipcMain.on('firstLaunch', (event, args) => {
     height:600,
     center:true,
     frame: false,
-    icon:"res/img/logo.png",
+    icon:__dirname+"/res/img/logo.png",
     parent: mainWindow,
     webPreferences: {
       nodeIntegration: true
@@ -80,7 +82,7 @@ ipcMain.on('firstLaunch', (event, args) => {
   });
   FLWindow.setResizable(false);
 
-  FLWindow.loadFile('web/html/FLW.html')
+  FLWindow.loadFile(__dirname+'/web/html/FLW.html')
 
   mainWindow.on('closed', () => {FLWindow = null;})
 })
@@ -89,6 +91,10 @@ ipcMain.on("endFirstConfig",  (event, args) => {
   mainWindow.reload();
   mainWindow.show();
 })
+
+ipcMain.on("write", (event, args) => {
+  fs.writeFile(__dirname+args[0], JSON.stringify(args[1]), err => {if (err) {console.log('Error writing file', err)}else{console.log('Successfully wrote file')}})
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
