@@ -1,5 +1,5 @@
+const ipc = require('electron').ipcRenderer;
 const jquery = require('jquery');
-const fs = require('fs');
 
 let up
 
