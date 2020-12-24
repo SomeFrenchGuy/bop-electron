@@ -135,8 +135,8 @@ function page_library_show(){
 
   fs.readdir(userPreference.gamesFolder, function (err, files) {
     if (err) {
-      mainDiv.innerHTML ="<p>Error with game's folder directory</p>";
-      alert('Unable to scan directory: ' + err);
+      mainDiv.innerHTML ="<p>Error with games folder directory <br><br>Please check your preference</p>";
+      console.log('Unable to scan directory: ' + err);
     } else if (files.length === 0){
       mainDiv.innerHTML ="<p>No games found ...</p>";
     //if everythings is fine
@@ -355,6 +355,11 @@ function gamesFolderSelect(){
     userPreference.gamesFolder = path[0];
     ipc.send("write", ['/res/data/config.json', userPreference])
   }
+}
+
+function manualSelect(){
+  userPreference.gamesFolder = document.getElementById("inputGamesFolder").value;
+  ipc.send("write", ['/res/data/config.json', userPreference])
 }
 
 //==============================================================================
