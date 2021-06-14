@@ -7,7 +7,7 @@
     "test": "electron ."
   },
   "author": "NiceTemmie",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "electron": "^9.1.0"
   },
