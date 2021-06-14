@@ -6,8 +6,8 @@
   "scripts": {
     "test": "electron ."
   },
-  "author": "NiceTemmie",
-  "license": "ISC",
+  "author": "SomeFrenchGuy",
+  "license": "MIT",
   "devDependencies": {
     "electron": "^9.1.0"
   },
